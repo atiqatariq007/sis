@@ -1,0 +1,26 @@
+{
+  "name": "jokesapi",
+  "version": "1.0.0",
+  "description": "this is my first complete project",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "nodemon": "^3.1.10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atiqatariq007/sis.git"
+  },
+  "bugs": {
+    "url": "https://github.com/atiqatariq007/sis/issues"
+  },
+  "homepage": "https://github.com/atiqatariq007/sis#readme"
+}
