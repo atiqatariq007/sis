@@ -1,17 +1,4 @@
 
-const express = require('express');
-const bodyparser = require('body-parser');
-const cors = require('cors');
-
-const app = express();
-const port = 3000;
-
-let jokes = [
-    { id: 1, joke: "Why don't scientists trust atoms? Because they make up everything!" },
-    { id: 2, joke: "Why did the scarecrow win an award? Because he was outstanding in his field!" },
-    { id: 3, joke: "Why don't skeletons fight each other? They don't have the guts." }
-];
-
 let students = [
     { id: 1, name: "Student 1", fatherName: "Father 1" },
     { id: 2, name: "Student 2", fatherName: "Father 2" },
@@ -115,11 +102,7 @@ let students = [
     { id: 100, name: "Student 100", fatherName: "Father 100" }
 ];
 
-app.use(cors());
-app.use(bodyparser.urlencoded({ extended: true }));
-app.use(bodyparser.json());
-
-app.get("/students", (req, res) => {
+exports.getAllStudents=(req,res)=>{
     const limit = parseInt(req.query.limit);
     const offset = parseInt(req.query.offset) ||0;
 
@@ -127,55 +110,20 @@ app.get("/students", (req, res) => {
         return res.json(students.slice(offset, offset+limit));
     }
 
-    res.json(students); // return all if no valid limit
-});
+    res.json(students); 
+};
 
-
-app.get("/students/:id", (req, res) => {
+exports.getStudentById = (req,res)=>{
     const student = students.find(s =>
         s.id === parseInt(req.params.id))
     if (!student) return res.status(404).send("student not found");
     res.json(student);
-}
-);
+};
 
-// app.get("/students", (req, res) => {
-//     const limit = parseInt(req.query.limit);
-//     res.json(students.slice(0, limit));
-// });
-
-app.post("/students", (req, res) => {
+exports.addNewStudent =(req,res)=>{
     const newID = students[students.length - 1].id + 1;
     const name = req.body.name;
     const fatherName = req.body.fatherName;
     students.push({ id: newID, name: name, fatherName: fatherName });
     res.json({ id: newID, name: name, fatherName: fatherName });
-});
-
-app.get("/", (req, res) => {
-    res.json("welcome to jokes api,visit /jokes to get all jokes list");
-});
-
-app.get("/jokes", (req, res) => {
-    res.json(jokes);
-});
-app.get("/random-joke", (req, res) => {
-    const randomIndex = Math.floor(Math.random() * jokes.length);
-    res.json(jokes[randomIndex]);
-});
-app.get("/jokes/:id", (req, res) => {
-    const joke = jokes.find(j => j.id === parseInt(req.params.id));
-    if (!joke) return res.status(404).send("Joke not found");
-    res.json(joke);
-});
-
-app.post("/jokes", (req, res) => {
-    const newID = jokes[jokes.length - 1].id + 1;
-    const joke = req.body.joke;
-    jokes.push({ id: newID, joke: joke });
-    res.json({ id: newID, joke: joke });
-});
-
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-});
+};
