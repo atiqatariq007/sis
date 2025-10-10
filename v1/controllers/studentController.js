@@ -94,36 +94,115 @@ let students = [
     { id: 92, name: "Student 92", fatherName: "Father 92" },
     { id: 93, name: "Student 93", fatherName: "Father 93" },
     { id: 94, name: "Student 94", fatherName: "Father 94" },
-    { id: 95, name: "Student 95", fatherName: "Father 95" },
-    { id: 96, name: "Student 96", fatherName: "Father 96" },
-    { id: 97, name: "Student 97", fatherName: "Father 97" },
-    { id: 98, name: "Student 98", fatherName: "Father 98" },
-    { id: 99, name: "Student 99", fatherName: "Father 99" },
-    { id: 100, name: "Student 100", fatherName: "Father 100" }
+    { id: 95, name: "Student 95", fatherName: "Father 95" }
 ];
 
-exports.getAllStudents=(req,res)=>{
-    const limit = parseInt(req.query.limit);
-    const offset = parseInt(req.query.offset) ||0;
+const mysql = require("mysql");
+
+
+const db = mysql.createConnection({
+    host: 'mysql.s2164.sureserver.com',
+    user: 'LearningUser',
+    password: 'consomoloveri',
+    database: 'gjournal_Learning',
+    port: 3308
+});
+
+db.connect(err => {
+    if (err) {
+        console.error("❌ MySQL connection error:", err.message);
+        return;
+    }
+    console.log("✅ Connected to MySQL database!");
+
+});
+
+exports.getAllStudents = (req, res) => {
+    const sql = "SELECT * FROM studen1"
+    const limit = parseInt(req.query.limit) || 0;
+    const offset = parseInt(req.query.offset) || 0;
 
     if (Number.isInteger(limit) && limit > 0) {
-        return res.json(students.slice(offset, offset+limit));
-    }
+        return res.json(students.slice(offset, offset + limit));
+    } else
 
-    res.json(students); 
+        db.query(sql, (err, results) => {
+            if (err) {
+                console.error('❌ Error fetching students:', err);
+                return res.status(500).json({ error: 'Database query failed' });
+            }
+            res.json(results);
+        });
+
 };
 
-exports.getStudentById = (req,res)=>{
-    const student = students.find(s =>
-        s.id === parseInt(req.params.id))
-    if (!student) return res.status(404).send("student not found");
-    res.json(student);
+exports.getStudentById = (req, res) => {
+    const studentID =parseInt(req.params.id);
+    const sql = "SELECT * FROM studen1 WHERE IdStudent = ?"
+
+    db.query(sql,[studentID],(err,result)=>{
+        if (err) {
+            console.erroe("student not found");
+            return res.status(500).json({ error: 'Database query failed' });
+         }
+         res.json(result);
+    });
 };
 
-exports.addNewStudent =(req,res)=>{
-    const newID = students[students.length - 1].id + 1;
+exports.getStudentByIdAndUpdate = (req,res)=>{
+    const studentid =parseInt(req.params.id);
+    const StudentNewName=req.body.name;
+    const FatherNewName = req.body.fatherName;
+
+    const sql = "UPDATE studen1 SET  studentName = ? , fatherName =? WHERE IdStudent = ?"
+
+    db.query(sql,[StudentNewName,FatherNewName,studentid],(err,result)=>{
+        if (err) {
+            console.error("student not found");
+            return res.status(500).json({ error: 'Database query failed' });
+         }
+         res.json(result);
+    });
+};
+
+
+    
+exports.addNewStudent = (req, res) => {
+
     const name = req.body.name;
     const fatherName = req.body.fatherName;
-    students.push({ id: newID, name: name, fatherName: fatherName });
-    res.json({ id: newID, name: name, fatherName: fatherName });
+    const sql = "INSERT INTO studen1 (studentName, fatherName) VALUES (?, ?)"
+
+
+    db.query(sql, [name, fatherName], (err, result) => {
+        if (err) {
+            console.error("show: ", err);
+            return res.status(500).json({ error: "Failed to add student" });
+        }
+
+        res.json({
+            message: " Student added successfully",
+            studentName: name,
+            fatherName: fatherName,
+
+        });
+    });
 };
+
+exports.deleteStudent = (req, res) =>{
+    const studentID = parseInt(req.params.id);
+    const sql = "DELETE FROM studen1 WHERE IdStudent=?"
+
+    db.query(sql,[studentID],(err,result)=>{
+        if(err){
+            console.error("No student with this id exist");
+            return res.status(500).json({ error: "Failed to DELETE student" });
+        }
+        res.json({
+            message:"Student Deleted successfully",
+            IdStudent : studentID
+        })
+    
+});
+};
+ 
